@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeChat - Discover People</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .discover-container {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            padding: 80px 20px 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-bar {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px 15px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 0 20px;
+        }
+        
+        .filter {
+            padding: 8px 15px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .filter.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .filter:hover:not(.active) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .discover-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+        
+        .discover-card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .discover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px var(--shadow-medium);
+        }
+        
+        .discover-header {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .discover-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .discover-user-info {
+            flex: 1;
+        }
+        
+        .discover-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .discover-name .verified {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+        
+        .discover-handle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .discover-content img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+        
+        .discover-caption {
+            padding: 15px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .discover-hashtags {
+            padding: 0 15px 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .discover-hashtag {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        
+        .discover-stats {
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .discover-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .discover-actions {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .discover-action {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .follow-user {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .view-profile {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .follow-user:hover {
+            background: var(--primary-hover);
+        }
+        
+        .view-profile:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .back-to-chat {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-to-chat:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        @media (max-width: 768px) {
+            .discover-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="theme-btn">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <a href="chat.html" class="back-to-chat">
+        <i class="fas fa-arrow-left"></i> Back to Chat
+    </a>
+
+    <div class="discover-container">
+        <div class="header">
+            <h1><i class="fas fa-globe"></i> Discover People</h1>
+        </div>
+
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search by interests, hobbies, or location...">
+        </div>
+
+        <div class="filters">
+            <div class="filter active">All</div>
+            <div class="filter"><i class="fas fa-map-marker-alt"></i> Nearby</div>
+            <div class="filter"><i class="fas fa-star"></i> Popular</div>
+            <div class="filter"><i class="fas fa-user-plus"></i> New Users</div>
+            <div class="filter"><i class="fas fa-palette"></i> Creators</div>
+            <div class="filter"><i class="fas fa-music"></i> Music</div>
+            <div class="filter"><i class="fas fa-gamepad"></i> Gaming</div>
+            <div class="filter"><i class="fas fa-laptop-code"></i> Tech</div>
+        </div>
+
+        <div class="discover-grid">
+            <!-- Discover Card 1 -->
+            <div class="discover-card">
+                <div class="discover-header">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="discover-avatar">
+                    <div class="discover-user-info">
+                        <div class="discover-name">
+                            Alex Morgan
+                            <i class="fas fa-check-circle verified"></i>
+                        </div>
+                        <div class="discover-handle">@alex_travels</div>
+                    </div>
+                </div>
+                <div class="discover-content">
+                    <img src="https://source.unsplash.com/random/600x400/?travel,mountains" alt="Post Image">
+                </div>
+                <div class="discover-caption">
+                    Just summited Mt. Rainier! The view from the top is absolutely breathtaking. This has been on my bucket list for years!
+                </div>
+                <div class="discover-hashtags">
+                    <span class="discover-hashtag">#Adventure</span>
+                    <span class="discover-hashtag">#Mountains</span>
+                    <span class="discover-hashtag">#Hiking</span>
+                    <span class="discover-hashtag">#Nature</span>
+                </div>
+                <div class="discover-stats">
+                    <div class="discover-stat">
+                        <i class="fas fa-heart"></i> 423 Likes
+                    </div>
+                    <div class="discover-stat">
+                        <i class="fas fa-comment"></i> 57 Comments
+                    </div>
+                </div>
+                <div class="discover-actions">
+                    <button class="discover-action follow-user">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </button>
+                    <button class="discover-action view-profile">
+                        <i class="fas fa-user"></i> View Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Discover Card 2 -->
+            <div class="discover-card">
+                <div class="discover-header">
+                    <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="discover-avatar">
+                    <div class="discover-user-info">
+                        <div class="discover-name">
+                            Mia Chen
+                        </div>
+                        <div class="discover-handle">@mia_cooks</div>
+                    </div>
+                </div>
+                <div class="discover-content">
+                    <img src="https://source.unsplash.com/random/600x400/?cooking,food" alt="Post Image">
+                </div>
+                <div class="discover-caption">
+                    Made my grandmother's secret recipe pasta today. The trick is in the sauce - slow cooked for 5 hours with fresh herbs from the garden!
+                </div>
+                <div class="discover-hashtags">
+                    <span class="discover-hashtag">#Cooking</span>
+                    <span class="discover-hashtag">#ItalianFood</span>
+                    <span class="discover-hashtag">#Homemade</span>
+                </div>
+                <div class="discover-stats">
+                    <div class="discover-stat">
+                        <i class="fas fa-heart"></i> 289 Likes
+                    </div>
+                    <div class="discover-stat">
+                        <i class="fas fa-comment"></i> 42 Comments
+                    </div>
+                </div>
+                <div class="discover-actions">
+                    <button class="discover-action follow-user">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </button>
+                    <button class="discover-action view-profile">
+                        <i class="fas fa-user"></i> View Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Discover Card 3 -->
+            <div class="discover-card">
+                <div class="discover-header">
+                    <img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="discover-avatar">
+                    <div class="discover-user-info">
+                        <div class="discover-name">
+                            Marcus Johnson
+                            <i class="fas fa-check-circle verified"></i>
+                        </div>
+                        <div class="discover-handle">@marcus_music</div>
+                    </div>
+                </div>
+                <div class="discover-content">
+                    <img src="https://source.unsplash.com/random/600x400/?music,concert" alt="Post Image">
+                </div>
+                <div class="discover-caption">
+                    Just dropped my new single! Link in bio. Thanks to everyone who supported me through this journey - couldn't have done it without you all! 🎵
+                </div>
+                <div class="discover-hashtags">
+                    <span class="discover-hashtag">#NewMusic</span>
+                    <span class="discover-hashtag">#IndieArtist</span>
+                    <span class="discover-hashtag">#Singer</span>
+                </div>
+                <div class="discover-stats">
+                    <div class="discover-stat">
+                        <i class="fas fa-heart"></i> 1,245 Likes
+                    </div>
+                    <div class="discover-stat">
+                        <i class="fas fa-comment"></i> 198 Comments
+                    </div>
+                </div>
+                <div class="discover-actions">
+                    <button class="discover-action follow-user">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </button>
+                    <button class="discover-action view-profile">
+                        <i class="fas fa-user"></i> View Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Discover Card 4 -->
+            <div class="discover-card">
+                <div class="discover-header">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" alt="Avatar" class="discover-avatar">
+                    <div class="discover-user-info">
+                        <div class="discover-name">
+                            Priya Sharma
+                        </div>
+                        <div class="discover-handle">@priya_tech</div>
+                    </div>
+                </div>
+                <div class="discover-content">
+                    <img src="https://source.unsplash.com/random/600x400/?technology,coding" alt="Post Image">
+                </div>
+                <div class="discover-caption">
+                    Just launched my new app after 6 months of development! Check it out - it's a productivity tool that helps you manage your daily tasks with AI assistance.
+                </div>
+                <div class="discover-hashtags">
+                    <span class="discover-hashtag">#Tech</span>
+                    <span class="discover-hashtag">#Programming</span>
+                    <span class="discover-hashtag">#AppDevelopment</span>
+                    <span class="discover-hashtag">#AI</span>
+                </div>
+                <div class="discover-stats">
+                    <div class="discover-stat">
+                        <i class="fas fa-heart"></i> 712 Likes
+                    </div>
+                    <div class="discover-stat">
+                        <i class="fas fa-comment"></i> 89 Comments
+                    </div>
+                </div>
+                <div class="discover-actions">
+                    <button class="discover-action follow-user">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </button>
+                    <button class="discover-action view-profile">
+                        <i class="fas fa-user"></i> View Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Apply theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Update icon based on current theme
+        if (savedTheme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            if (newTheme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        });
+        
+        // Filters functionality
+        document.querySelectorAll('.filter').forEach(filter => {
+            filter.addEventListener('click', () => {
+                document.querySelectorAll('.filter').forEach(f => f.classList.remove('active'));
+                filter.classList.add('active');
+                
+                const filterText = filter.textContent.trim();
+                // Here you would normally filter the content based on the selection
+                console.log(`Filter applied: ${filterText}`);
+            });
+        });
+        
+        // Follow button functionality
+        document.querySelectorAll('.follow-user').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const username = btn.closest('.discover-card')
+                    .querySelector('.discover-name').textContent.trim();
+                
+                btn.innerHTML = '<i class="fas fa-check"></i> Following';
+                btn.style.background = 'var(--success-color)';
+                
+                setTimeout(() => {
+                    alert(`You are now following ${username}!`);
+                }, 500);
+            });
+        });
+        
+        // Profile view functionality
+        document.querySelectorAll('.view-profile').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const username = btn.closest('.discover-card')
+                    .querySelector('.discover-name').textContent.trim();
+                
+                alert(`Viewing ${username}'s profile would open here.`);
+            });
+        });
+        
+        // Hashtag functionality
+        document.querySelectorAll('.discover-hashtag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const hashtag = tag.textContent;
+                alert(`Searching for ${hashtag} posts...`);
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-bar input');
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                alert(`Searching for: ${searchInput.value}`);
+            }
+        });
+    </script>
+</body>
+</html>

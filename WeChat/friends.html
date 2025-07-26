@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeChat - Find Friends</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .friends-container {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            padding: 80px 20px 20px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-bar {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px 15px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .search-bar input:focus {
+            border-color: var(--primary-color);
+            background: var(--bg-primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+        
+        .friend-card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .friend-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px var(--shadow-medium);
+        }
+        
+        .friend-cover {
+            height: 80px;
+            background: var(--gradient-primary);
+            position: relative;
+        }
+        
+        .friend-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--bg-secondary);
+            position: absolute;
+            bottom: -40px;
+            left: 20px;
+            background: var(--bg-secondary);
+        }
+        
+        .friend-info {
+            padding: 50px 20px 20px;
+            text-align: center;
+        }
+        
+        .friend-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+        
+        .friend-handle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .friend-status {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-online {
+            background: var(--success-color);
+        }
+        
+        .status-offline {
+            background: var(--text-muted);
+        }
+        
+        .friend-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .friend-action {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-friend {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .message-friend {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .add-friend:hover {
+            background: var(--primary-hover);
+        }
+        
+        .message-friend:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .back-to-chat {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-to-chat:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        @media (max-width: 768px) {
+            .friends-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .friends-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                gap: 5px;
+                padding: 0 10px;
+            }
+            
+            .tab {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="theme-btn">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <a href="chat.html" class="back-to-chat">
+        <i class="fas fa-arrow-left"></i> Back to Chat
+    </a>
+
+    <div class="friends-container">
+        <div class="header">
+            <h1><i class="fas fa-users"></i> Find Friends</h1>
+        </div>
+
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search for friends by name or username...">
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">Suggestions</div>
+            <div class="tab">Nearby</div>
+            <div class="tab">Mutual Connections</div>
+            <div class="tab">Popular</div>
+        </div>
+
+        <div class="friends-grid">
+            <!-- Friend Card 1 -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Kalam Pavan</div>
+                    <div class="friend-handle">@kp</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-online"></div>
+                        Online
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Card 2 -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Ogety Karthik</div>
+                    <div class="friend-handle">@O_Karthi</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-offline"></div>
+                        Last seen 2h ago
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Card 3 -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Suman</div>
+                    <div class="friend-handle">@suman</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-online"></div>
+                        Online
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Card 4 -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Vamsi</div>
+                    <div class="friend-handle">@vamsi</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-online"></div>
+                        Online
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Card 5 -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b4ab?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Anushka</div>
+                    <div class="friend-handle">@anushka</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-offline"></div>
+                        Last seen 5h ago
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Card 6 -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Sai</div>
+                    <div class="friend-handle">@sai</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-online"></div>
+                        Online
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Card 7 - Harsha -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Harsha</div>
+                    <div class="friend-handle">@harsha</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-online"></div>
+                        Online
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Friend Card 8 - Badri -->
+            <div class="friend-card">
+                <div class="friend-cover"></div>
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face" alt="Profile Image" class="friend-avatar">
+                <div class="friend-info">
+                    <div class="friend-name">Badri</div>
+                    <div class="friend-handle">@badri</div>
+                    <div class="friend-status">
+                        <div class="status-indicator status-offline"></div>
+                        Last seen 5h ago
+                    </div>
+                    <div class="friend-actions">
+                        <button class="friend-action add-friend">
+                            <i class="fas fa-user-plus"></i> Add Friend
+                        </button>
+                        <button class="friend-action message-friend">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Apply theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Update icon based on current theme
+        if (savedTheme === 'dark') {
+            themeIcon.className = 'fas fa-sun';
+        } else {
+            themeIcon.className = 'fas fa-moon';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            if (newTheme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        });
+        
+        // Tabs functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+        
+        // Friend actions
+        document.querySelectorAll('.friend-action').forEach(action => {
+            action.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent any default behavior
+                const isAddButton = action.classList.contains('add-friend');
+                const friendName = action.closest('.friend-info').querySelector('.friend-name').textContent;
+                
+                console.log('Friend action clicked:', { isAddButton, friendName });
+                
+                if (isAddButton) {
+                    action.innerHTML = '<i class="fas fa-check"></i> Added';
+                    action.style.background = 'var(--success-color)';
+                    setTimeout(() => {
+                        alert(`Friend request sent to ${friendName}!`);
+                    }, 500);
+                } else {
+                    // Get the friend name and redirect to message.html with the friend's name as a parameter
+                    const friendName = action.closest('.friend-info').querySelector('.friend-name').textContent;
+                    const redirectUrl = `message.html?friend=${encodeURIComponent(friendName.trim())}`;
+                    console.log('Redirecting to:', redirectUrl);
+                    
+                    // Add a small delay to ensure the console log is visible
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 100);
+                }
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-bar input');
+        const friendCards = document.querySelectorAll('.friend-card');
+        
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            friendCards.forEach(card => {
+                const name = card.querySelector('.friend-name').textContent.toLowerCase();
+                const handle = card.querySelector('.friend-handle').textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || handle.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
